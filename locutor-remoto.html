@@ -1,62 +1,22 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#050505">
-<title>Locutor remoto | Crazy Radio Online</title>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#050505"><title>Locutor remoto | Crazy Radio Online</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#050505;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:18px}
-main{width:min(100%,520px);background:#101010;border:1px solid #ffd400;border-radius:20px;padding:26px;text-align:center;box-shadow:0 12px 50px #000}
-h1{color:#ffd400;margin:0 0 8px;font-size:clamp(25px,6vw,34px)}p{color:#ddd;line-height:1.55}
-label{display:block;text-align:left;margin:16px 0 6px;color:#ffd400;font-weight:bold}
-input{width:100%;padding:13px;border-radius:10px;border:1px solid #777;background:#080808;color:white;font-size:16px}
-button{margin-top:20px;width:100%;padding:14px;border:0;border-radius:30px;background:#ffd400;color:#050505;font-size:16px;font-weight:900;cursor:pointer}
-button:disabled{opacity:.5;cursor:wait}.status{min-height:48px;margin-top:16px;color:#ffd400;white-space:pre-line}
-.note{font-size:12px;color:#999}.back{color:#ffd400;text-decoration:none}
-</style>
-</head>
-<body>
-<main>
-<h1>CRAZY RADIO ONLINE</h1>
-<p>🎙️ Solicitud de locutor remoto</p>
-<p>Introduce tus datos y el código privado que te ha facilitado el estudio. La solicitud técnica de acceso todavía está en fase de pruebas; el estudio debe autorizar tu entrada antes de emitir.</p>
-<form id="requestForm">
-<label for="guestName">Tu nombre</label><input id="guestName" name="name" maxlength="40" autocomplete="name" required>
-<label for="accessCode">Código privado de invitado</label><input id="accessCode" name="access_code" type="password" autocomplete="off" required>
-<button id="submitBtn" type="submit">SOLICITAR CONEXIÓN</button>
-</form>
-<div class="status" id="status" role="status" aria-live="polite"></div>
-<p class="note">Una vez conectado el sistema completo, el estudio controlará quién puede hablar. Solo un invitado podrá estar en antena a la vez.</p>
-<a class="back" href="./">Volver a Crazy Radio Online</a>
-</main>
-<script>
-const form=document.getElementById('requestForm');
-const statusBox=document.getElementById('status');
-const submitBtn=document.getElementById('submitBtn');
-form.addEventListener('submit',async(event)=>{
- event.preventDefault();
- statusBox.textContent='Comprobando solicitud…';
- submitBtn.disabled=true;
- try{
-  const response=await fetch('https://craz-radio-livekit.sandovalroberto08.workers.dev/token',{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({
-    name:document.getElementById('guestName').value.trim(),
-    access_code:document.getElementById('accessCode').value
-   })
-  });
-  const result=await response.json();
-  if(!response.ok) throw new Error(result.error||'No se pudo solicitar acceso');
-  statusBox.textContent='Solicitud técnica aceptada. La conexión de audio y la autorización del estudio aún no están activadas. No estás en antena.';
-  // Never persist or display participant tokens in this prototype.
- }catch(error){
-  statusBox.textContent=error.message==='Failed to fetch'
-   ?'No se pudo contactar con el servidor. Revisa la dirección del Worker y su configuración CORS.'
-   :error.message;
- }finally{submitBtn.disabled=false;}
-});
-</script>
-</body>
-</html>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#050505;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:18px}main{width:min(100%,560px);background:#111;border:1px solid #ffd400;border-radius:20px;padding:26px;text-align:center;box-shadow:0 12px 50px #000}h1{color:#ffd400;margin:0 0 8px}p{color:#ddd;line-height:1.55}.sub{color:#ffd400;font-weight:bold}label{display:block;text-align:left;margin:16px 0 6px;color:#ffd400;font-weight:bold}input{width:100%;padding:13px;border-radius:10px;border:1px solid #777;background:#080808;color:white;font-size:16px}button{margin-top:16px;width:100%;padding:14px;border:0;border-radius:30px;background:#ffd400;color:#050505;font-size:16px;font-weight:900;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#242424;color:#ffd400;border:1px solid #ffd400}.status{min-height:50px;margin-top:16px;color:#ffd400;white-space:pre-line}.small{font-size:12px;color:#999}.hidden{display:none!important}.live{color:#f44;font-size:20px;font-weight:bold}.back{color:#ffd400;text-decoration:none}
+</style></head>
+<body><main><h1>CRAZY RADIO ONLINE</h1><p class="sub">🎙️ SOLICITUD DE LOCUTOR REMOTO</p><p>Conéctate desde casa y espera a que el estudio te dé paso. Solo un invitado podrá hablar en antena cada vez.</p>
+<form id="requestForm"><label for="guestName">Tu nombre</label><input id="guestName" maxlength="40" autocomplete="name" required><label for="accessCode">Código privado de invitado</label><input id="accessCode" type="password" autocomplete="off" required><button id="submitBtn">SOLICITAR CONEXIÓN</button></form>
+<section id="session" class="hidden"><p id="stage" class="status">Conectando…</p><p id="onair" class="live hidden">🔴 ESTÁS EN ANTENA</p><button id="micBtn" disabled>MICRÓFONO BLOQUEADO POR EL ESTUDIO</button><button id="leaveBtn" class="secondary">SALIR DE LA SALA</button></section>
+<div id="status" class="status" role="status" aria-live="polite"></div><p class="small">El micrófono permanece bloqueado hasta que el operador autorice tu entrada. Usa auriculares para evitar eco.</p><a class="back" href="./">← Volver a Crazy Radio Online</a></main>
+<script type="module">
+import {Room,RoomEvent,Track} from "https://cdn.jsdelivr.net/npm/livekit-client@2.25.0/+esm";
+const API="https://craz-radio-livekit.sandovalroberto08.workers.dev";
+const form=document.getElementById("requestForm"),statusBox=document.getElementById("status"),submitBtn=document.getElementById("submitBtn"),sessionBox=document.getElementById("session"),stage=document.getElementById("stage"),micBtn=document.getElementById("micBtn"),leaveBtn=document.getElementById("leaveBtn"),onair=document.getElementById("onair");
+let room=null,identity="",ticket="",poll=null,micEnabled=false;
+function stageText(text){stage.textContent=text;statusBox.textContent="";}
+function permitted(){return Boolean(room&&room.localParticipant.permissions&&room.localParticipant.permissions.canPublish);}
+async function syncPermissions(){const ok=permitted();micBtn.disabled=!ok;micBtn.textContent=ok?(micEnabled?"SILENCIAR MI MICRÓFONO":"ACTIVAR MICRÓFONO"):"MICRÓFONO BLOQUEADO POR EL ESTUDIO";onair.classList.toggle("hidden",!ok);if(!ok&&micEnabled){try{await room.localParticipant.setMicrophoneEnabled(false);}catch(_){}micEnabled=false;}if(ok)stageText("El estudio te ha dado paso. Pulsa ACTIVAR MICRÓFONO cuando estés preparado.");}
+async function statusCheck(){if(!identity||!ticket)return;try{const r=await fetch(API+"/api/guest/status",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identity,ticket})});const d=await r.json();if(d.state==="waiting")stageText("Solicitud recibida. Estás en espera; todavía no estás en antena.");if(d.state==="onair")stageText("Autorizado por el estudio. Ya puedes activar tu micrófono.");if(d.state==="removed"){stageText("El estudio ha cerrado tu conexión. Puedes solicitar acceso nuevamente.");micBtn.disabled=true;if(poll)clearInterval(poll);}}catch(_){stage.textContent="Esperando respuesta del servidor…";}await syncPermissions();}
+form.addEventListener("submit",async e=>{e.preventDefault();submitBtn.disabled=true;statusBox.textContent="Solicitando acceso…";try{const r=await fetch(API+"/api/request-access",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:document.getElementById("guestName").value.trim(),access_code:document.getElementById("accessCode").value})});const d=await r.json();if(!r.ok)throw new Error(d.error||"No se pudo solicitar acceso");identity=d.identity;ticket=d.ticket;document.getElementById("accessCode").value="";form.classList.add("hidden");sessionBox.classList.remove("hidden");room=new Room({adaptiveStream:false,dynacast:false});room.on(RoomEvent.ParticipantPermissionsChanged,()=>syncPermissions());room.on(RoomEvent.TrackSubscribed,t=>{if(t.kind===Track.Kind.Audio){const a=t.attach();a.autoplay=true;a.style.display="none";document.body.appendChild(a);}});room.on(RoomEvent.Disconnected,()=>{micEnabled=false;micBtn.disabled=true;stageText("Conexión cerrada.");});await room.connect(d.server_url,d.participant_token);stageText("Conectado a la sala de espera. El micrófono está bloqueado hasta que el estudio te dé paso.");await statusCheck();poll=setInterval(statusCheck,3000);}catch(err){statusBox.textContent=err.message||"Error de conexión";form.classList.remove("hidden");}finally{submitBtn.disabled=false;}});
+micBtn.addEventListener("click",async()=>{if(!room||!permitted())return;try{micEnabled=!micEnabled;await room.localParticipant.setMicrophoneEnabled(micEnabled);micBtn.textContent=micEnabled?"SILENCIAR MI MICRÓFONO":"ACTIVAR MICRÓFONO";stageText(micEnabled?"Micrófono activo. Estás conectado con el estudio.":"Tu micrófono está silenciado.");}catch(err){micEnabled=false;await syncPermissions();stage.textContent="No se pudo activar el micrófono: "+err.message;}});
+leaveBtn.addEventListener("click",async()=>{leaveBtn.disabled=true;try{if(identity&&ticket)await fetch(API+"/api/guest/leave",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identity,ticket})});}catch(_){}if(poll)clearInterval(poll);if(room)await room.disconnect();room=null;identity="";ticket="";micEnabled=false;sessionBox.classList.add("hidden");form.classList.remove("hidden");leaveBtn.disabled=false;statusBox.textContent="Has salido de la sala.";});
+</script></body></html>
