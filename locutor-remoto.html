@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>Locutor remoto | Crazy Radio Online</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#050505;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:18px}
+main{width:min(100%,520px);background:#101010;border:1px solid #ffd400;border-radius:20px;padding:26px;text-align:center;box-shadow:0 12px 50px #000}
+h1{color:#ffd400;margin:0 0 8px;font-size:clamp(25px,6vw,34px)}p{color:#ddd;line-height:1.55}
+label{display:block;text-align:left;margin:16px 0 6px;color:#ffd400;font-weight:bold}
+input{width:100%;padding:13px;border-radius:10px;border:1px solid #777;background:#080808;color:white;font-size:16px}
+button{margin-top:20px;width:100%;padding:14px;border:0;border-radius:30px;background:#ffd400;color:#050505;font-size:16px;font-weight:900;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}.status{min-height:48px;margin-top:16px;color:#ffd400;white-space:pre-line}
+.note{font-size:12px;color:#999}.back{color:#ffd400;text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<h1>CRAZY RADIO ONLINE</h1>
+<p>🎙️ Solicitud de locutor remoto</p>
+<p>Introduce tus datos y el código privado que te ha facilitado el estudio. La solicitud técnica de acceso todavía está en fase de pruebas; el estudio debe autorizar tu entrada antes de emitir.</p>
+<form id="requestForm">
+<label for="guestName">Tu nombre</label><input id="guestName" name="name" maxlength="40" autocomplete="name" required>
+<label for="accessCode">Código privado de invitado</label><input id="accessCode" name="access_code" type="password" autocomplete="off" required>
+<button id="submitBtn" type="submit">SOLICITAR CONEXIÓN</button>
+</form>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+<p class="note">Una vez conectado el sistema completo, el estudio controlará quién puede hablar. Solo un invitado podrá estar en antena a la vez.</p>
+<a class="back" href="./">Volver a Crazy Radio Online</a>
+</main>
+<script>
+const form=document.getElementById('requestForm');
+const statusBox=document.getElementById('status');
+const submitBtn=document.getElementById('submitBtn');
+form.addEventListener('submit',async(event)=>{
+ event.preventDefault();
+ statusBox.textContent='Comprobando solicitud…';
+ submitBtn.disabled=true;
+ try{
+  const response=await fetch('https://craz-radio-livekit.sandovalroberto08.workers.dev/token',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+    name:document.getElementById('guestName').value.trim(),
+    access_code:document.getElementById('accessCode').value
+   })
+  });
+  const result=await response.json();
+  if(!response.ok) throw new Error(result.error||'No se pudo solicitar acceso');
+  statusBox.textContent='Solicitud técnica aceptada. La conexión de audio y la autorización del estudio aún no están activadas. No estás en antena.';
+  // Never persist or display participant tokens in this prototype.
+ }catch(error){
+  statusBox.textContent=error.message==='Failed to fetch'
+   ?'No se pudo contactar con el servidor. Revisa la dirección del Worker y su configuración CORS.'
+   :error.message;
+ }finally{submitBtn.disabled=false;}
+});
+</script>
+</body>
+</html>
